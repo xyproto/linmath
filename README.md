@@ -1,22 +1,24 @@
 # linmath
 
-BBased on [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenwolf' Draxinger &lt;code@datenwolf.net&gt; (DWTFYWTPL license).
+Based on [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenwolf' Draxinger &lt;code@datenwolf.net&gt; (DWTFYWTPL license).
 
-## Features
+## Features and limitations
 
-This Go package contains various functions and types for dealing with:
+* This package is still undergoing heavy refactoring, to make the style more "Go-like".
 
-* Vec3, 3 element vector of float64
-* Vec4, 4 element vector of float64 (4th component used for homogenous computations)
-* Mat4x4, 4 by 4 elements matrix (computations are done in column major order)
-* Quat, quaternions
+Several functions and types are provided:
+
+* `Vec2`, a 2 element vector of float64 (x,y)
+* `Vec3`, a 3 element vector of float64 (x,y,z)
+* `Vec4`, a 4 element vector of float64 (4th component used for homogenous computations)
+* `Mat4x4`, a 4 by 4 elements matrix (computations are done in column major order)
+* `Quat`, a 4 element vector of float64 (x,y,z,w)
 
 These may be useful for computer graphics programming.
 
 ## TODO
 
 - [ ] Add tests
-- [ ] Implement `QuatFromMat4x4`
 
 ## General info
 

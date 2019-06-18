@@ -149,53 +149,46 @@ func Mat4x4FromQuat(M *Mat4x4, q Quat) {
 	(*M)[3][3] = 1.0
 }
 
-func Vec4FromVec3(v Vec3) (r Vec4) {
-	r[0] = v[0]
-	r[1] = v[1]
-	r[2] = v[2]
-	return r
-}
-
 func Mat4x4oMulQuat(R *Mat4x4, M Mat4x4, q Quat) {
 	/*  XXX: The way this is written only works for othogonal matrices. */
 	/* TODO: Take care of non-orthogonal case. */
-	(*R)[0] = Vec4FromVec3(QuatMulVec3(q, Vec3FromVec4(M[0])))
-	(*R)[1] = Vec4FromVec3(QuatMulVec3(q, Vec3FromVec4(M[1])))
-	(*R)[2] = Vec4FromVec3(QuatMulVec3(q, Vec3FromVec4(M[2])))
+	(*R)[0] = Vec43(QuatMulVec3(q, Vec34(M[0])))
+	(*R)[1] = Vec43(QuatMulVec3(q, Vec34(M[1])))
+	(*R)[2] = Vec43(QuatMulVec3(q, Vec34(M[2])))
 	(*R)[3][0] = 0
 	(*R)[3][1] = 0
 	(*R)[3][2] = 0
 	(*R)[3][3] = 1.0
 }
 
-//func QuatFromMat4x4(M Mat4x4) (q Quat) {
-//	r := 0.0
-//
-//	perm = []int{0, 1, 2, 0, 1}
-//	var p := &perm[0]
-//
-//	for i := 0; i < 3; i++ {
-//		m := M[i][i]
-//		if m < r {
-//			continue
-//		}
-//		m = r
-//		p = perm[i]
-//	}
-//
-//	r = math.Sqrt(1.0 + M[p[0]][p[0]] - M[p[1]][p[1]] - M[p[2]][p[2]])
-//
-//	if r < 1e-6 {
-//		q[0] = 1.0
-//		q[1] = 0
-//		q[2] = 0
-//		q[3] = 0
-//		return q
-//	}
-//
-//	q[0] = r / 2.0
-//	q[1] = (M[p[0]][p[1]] - M[p[1]][p[0]]) / (2.0 * r)
-//	q[2] = (M[p[2]][p[0]] - M[p[0]][p[2]]) / (2.0 * r)
-//	q[3] = (M[p[2]][p[1]] - M[p[1]][p[2]]) / (2.0 * r)
-//	return q
-//}
+func (M Mat4x4) Quat() (q Quat) {
+	r := 0.0
+
+	for i := 0; i < 3; i++ {
+		m := M[i][i]
+		if m < r {
+			continue
+		}
+		m = r
+	}
+
+	p0 := 2
+	p1 := 0
+	p2 := 1
+
+	r = math.Sqrt(1.0 + M[p0][p0] - M[p1][p1] - M[p2][p2])
+
+	if r < 1e-6 {
+		q[0] = 1.0
+		q[1] = 0
+		q[2] = 0
+		q[3] = 0
+		return q
+	}
+
+	q[0] = r / 2.0
+	q[1] = (M[p0][p1] - M[p1][p0]) / (2.0 * r)
+	q[2] = (M[p2][p0] - M[p0][p2]) / (2.0 * r)
+	q[3] = (M[p2][p1] - M[p1][p2]) / (2.0 * r)
+	return q
+}
