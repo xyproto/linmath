@@ -4,17 +4,14 @@ import "math"
 
 type Mat4x4 [4]Vec4
 
-func equalIsOne(a, b int) float64 {
-	if a == b {
-		return 1.
-	}
-	return 0
-}
-
 func (M *Mat4x4) Identity() {
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			(*M)[i][j] = equalIsOne(i, j)
+			if i == j {
+				(*M)[i][j] = 1.
+			} else {
+				(*M)[i][j] = 0
+			}
 		}
 	}
 }
@@ -27,16 +24,16 @@ func (M *Mat4x4) Dup(N Mat4x4) {
 	}
 }
 
-func Mat4x4Row(M Mat4x4, i int) (r Vec4) {
+func (M *Mat4x4) Row(i int) (r Vec4) {
 	for k := 0; k < 4; k++ {
-		r[k] = M[k][i]
+		r[k] = (*M)[k][i]
 	}
 	return r
 }
 
-func Mat4x4Col(M Mat4x4, i int) (r Vec4) {
+func (M *Mat4x4) Col(i int) (r Vec4) {
 	for k := 0; k < 4; k++ {
-		r[k] = M[i][k]
+		r[k] = (*M)[i][k]
 	}
 	return r
 }
@@ -89,11 +86,11 @@ func (M *Mat4x4) Mul(a, b Mat4x4) {
 	M.Dup(temp)
 }
 
-func (M Mat4x4) MulVec4(v Vec4) (r Vec4) {
+func (M *Mat4x4) MulVec4(v Vec4) (r Vec4) {
 	for j := 0; j < 4; j++ {
 		r[j] = 0
 		for i := 0; i < 4; i++ {
-			r[j] += M[i][j] * v[i]
+			r[j] += (*M)[i][j] * v[i]
 		}
 	}
 	return r
@@ -110,7 +107,7 @@ func (M *Mat4x4) TranslateInPlace(x, y, z float64) {
 	t := Vec4{x, y, z, 0}
 	var r Vec4
 	for i := 0; i < 4; i++ {
-		r = Mat4x4Row(*M, i)
+		r = M.Row(i)
 		(*M)[3][i] += Vec4MulInner(r, t)
 	}
 }
@@ -241,45 +238,45 @@ func (M *Mat4x4) Invert(M2 Mat4x4) {
 	(*M)[3][3] = (M2[2][0]*s[3] - M2[2][1]*s[1] + M2[2][2]*s[0]) * idet
 }
 
-func (R *Mat4x4) Orthonormalize(M Mat4x4) {
-	R.Dup(M)
+func (M *Mat4x4) Orthonormalize(RM Mat4x4) {
+	M.Dup(RM)
 
-	vn := Vec3Norm(Vec34((*R)[2]))
+	vn := Vec3Norm(Vec34((*M)[2]))
 
-	(*R)[2][0] = vn[0]
-	(*R)[2][1] = vn[1]
-	(*R)[2][2] = vn[2]
+	(*M)[2][0] = vn[0]
+	(*M)[2][1] = vn[1]
+	(*M)[2][2] = vn[2]
 
-	s := Vec3MulInner(Vec34((*R)[1]), Vec34((*R)[2]))
-	h := Vec3Scale(Vec34((*R)[2]), s)
-	vs := Vec3Sub(Vec34((*R)[1]), h)
+	s := Vec3MulInner(Vec34((*M)[1]), Vec34((*M)[2]))
+	h := Vec3Scale(Vec34((*M)[2]), s)
+	vs := Vec3Sub(Vec34((*M)[1]), h)
 
-	(*R)[1][0] = vs[0]
-	(*R)[1][1] = vs[1]
-	(*R)[1][2] = vs[2]
+	(*M)[1][0] = vs[0]
+	(*M)[1][1] = vs[1]
+	(*M)[1][2] = vs[2]
 
-	vn = Vec3Norm(Vec34((*R)[1]))
+	vn = Vec3Norm(Vec34((*M)[1]))
 
-	(*R)[1][0] = vn[0]
-	(*R)[1][1] = vn[1]
-	(*R)[1][2] = vn[2]
+	(*M)[1][0] = vn[0]
+	(*M)[1][1] = vn[1]
+	(*M)[1][2] = vn[2]
 
-	s = Vec3MulInner(Vec34((*R)[0]), Vec34((*R)[2]))
-	h = Vec3Scale(Vec34((*R)[2]), s)
-	vs = Vec3Sub(Vec34((*R)[0]), h)
+	s = Vec3MulInner(Vec34((*M)[0]), Vec34((*M)[2]))
+	h = Vec3Scale(Vec34((*M)[2]), s)
+	vs = Vec3Sub(Vec34((*M)[0]), h)
 
-	(*R)[0][0] = vs[0]
-	(*R)[0][1] = vs[1]
-	(*R)[0][2] = vs[2]
+	(*M)[0][0] = vs[0]
+	(*M)[0][1] = vs[1]
+	(*M)[0][2] = vs[2]
 
-	s = Vec3MulInner(Vec34((*R)[0]), Vec34((*R)[1]))
-	h = Vec3Scale(Vec34((*R)[1]), s)
-	vs = Vec3Sub(Vec34((*R)[0]), h)
+	s = Vec3MulInner(Vec34((*M)[0]), Vec34((*M)[1]))
+	h = Vec3Scale(Vec34((*M)[1]), s)
+	vs = Vec3Sub(Vec34((*M)[0]), h)
 	vn = Vec3Norm(vs)
 
-	(*R)[0][0] = vn[0]
-	(*R)[0][1] = vn[1]
-	(*R)[0][2] = vn[2]
+	(*M)[0][0] = vn[0]
+	(*M)[0][1] = vn[1]
+	(*M)[0][2] = vn[2]
 }
 
 func (M *Mat4x4) Frustum(l, r, b, t, n, f float64) {
@@ -326,10 +323,10 @@ func (M *Mat4x4) Ortho(l, r, b, t, n, f float64) {
 	(*M)[3][3] = 1.0
 }
 
-func (M *Mat4x4) Perspective(yFov, aspect, n, f float64) {
+func (M *Mat4x4) Perspective(yFOV, aspect, n, f float64) {
 	/* NOTE: Degrees are an unhandy unit to work with.
 	 * linmath.h uses radians for everything! */
-	a := 1.0 / math.Tan(yFov/2.0)
+	a := 1.0 / math.Tan(yFOV/2.0)
 
 	(*M)[0][0] = a / aspect
 	(*M)[0][1] = 0
