@@ -1,6 +1,6 @@
 # linmath
 
-Based on [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenwolf' Draxinger &lt;code@datenwolf.net&gt; (licensed under WTFPL).
+Port of [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenwolf' Draxinger &lt;code@datenwolf.net&gt; (licensed under WTFPL), from C to Go.
 
 ## Features and limitations
 
