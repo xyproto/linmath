@@ -4,8 +4,6 @@ Based on [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenw
 
 ## Features and limitations
 
-* This package is still undergoing heavy refactoring, to make the style more "Go-like".
-
 Several functions and types are provided:
 
 * `Vec2`, a 2 element vector of float64 (x,y)
@@ -23,5 +21,5 @@ These may be useful for computer graphics programming.
 ## General info
 
 * License: MIT
-* Version: 0.0.0
+* Version: 1.0.0
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
