@@ -189,8 +189,8 @@ func Vec4Reflect(v, n Vec4) (r Vec4) {
 	return r
 }
 
-// Vec34 creates a Vec3 from a given Vec4
-func Vec34(v Vec4) (r Vec3) {
+// Vec3 creates a Vec3 from a given Vec4
+func (v Vec4) Vec3() (r Vec3) {
 	r[0] = v[0]
 	r[1] = v[1]
 	r[2] = v[2]
@@ -198,8 +198,8 @@ func Vec34(v Vec4) (r Vec3) {
 	return r
 }
 
-// Vec43 creates a Vec4 from a given Vec3
-func Vec43(v Vec3) (r Vec4) {
+// Vec4 creates a Vec4 from a given Vec3
+func (v Vec3) Vec4() (r Vec4) {
 	r[0] = v[0]
 	r[1] = v[1]
 	r[2] = v[2]

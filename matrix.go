@@ -241,37 +241,37 @@ func (M *Mat4x4) Invert(M2 Mat4x4) {
 func (M *Mat4x4) Orthonormalize(RM Mat4x4) {
 	M.Dup(RM)
 
-	vn := Vec3Norm(Vec34((*M)[2]))
+	vn := Vec3Norm((*M)[2].Vec3())
 
 	(*M)[2][0] = vn[0]
 	(*M)[2][1] = vn[1]
 	(*M)[2][2] = vn[2]
 
-	s := Vec3MulInner(Vec34((*M)[1]), Vec34((*M)[2]))
-	h := Vec3Scale(Vec34((*M)[2]), s)
-	vs := Vec3Sub(Vec34((*M)[1]), h)
+	s := Vec3MulInner((*M)[1].Vec3(), (*M)[2].Vec3())
+	h := Vec3Scale((*M)[2].Vec3(), s)
+	vs := Vec3Sub((*M)[1].Vec3(), h)
 
 	(*M)[1][0] = vs[0]
 	(*M)[1][1] = vs[1]
 	(*M)[1][2] = vs[2]
 
-	vn = Vec3Norm(Vec34((*M)[1]))
+	vn = Vec3Norm((*M)[1].Vec3())
 
 	(*M)[1][0] = vn[0]
 	(*M)[1][1] = vn[1]
 	(*M)[1][2] = vn[2]
 
-	s = Vec3MulInner(Vec34((*M)[0]), Vec34((*M)[2]))
-	h = Vec3Scale(Vec34((*M)[2]), s)
-	vs = Vec3Sub(Vec34((*M)[0]), h)
+	s = Vec3MulInner((*M)[0].Vec3(), (*M)[2].Vec3())
+	h = Vec3Scale((*M)[2].Vec3(), s)
+	vs = Vec3Sub((*M)[0].Vec3(), h)
 
 	(*M)[0][0] = vs[0]
 	(*M)[0][1] = vs[1]
 	(*M)[0][2] = vs[2]
 
-	s = Vec3MulInner(Vec34((*M)[0]), Vec34((*M)[1]))
-	h = Vec3Scale(Vec34((*M)[1]), s)
-	vs = Vec3Sub(Vec34((*M)[0]), h)
+	s = Vec3MulInner((*M)[0].Vec3(), (*M)[1].Vec3())
+	h = Vec3Scale((*M)[1].Vec3(), s)
+	vs = Vec3Sub((*M)[0].Vec3(), h)
 	vn = Vec3Norm(vs)
 
 	(*M)[0][0] = vn[0]
