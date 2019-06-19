@@ -7,15 +7,22 @@ type Mat4x4 [4]Vec4
 
 // Identity fills the matrix with the identity matrix (diagonal of 1's)
 func (M *Mat4x4) Identity() {
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			if i == j {
-				(*M)[i][j] = 1
-			} else {
-				(*M)[i][j] = 0
-			}
-		}
-	}
+	(*M)[0][0] = 1
+	(*M)[0][1] = 0
+	(*M)[0][2] = 0
+	(*M)[0][3] = 0
+	(*M)[1][0] = 0
+	(*M)[1][1] = 1
+	(*M)[1][2] = 0
+	(*M)[1][3] = 0
+	(*M)[2][0] = 0
+	(*M)[2][1] = 0
+	(*M)[2][2] = 1
+	(*M)[2][3] = 0
+	(*M)[3][0] = 0
+	(*M)[3][1] = 0
+	(*M)[3][2] = 0
+	(*M)[3][3] = 1
 }
 
 // MatIdentity creates a new identity matrix
@@ -48,28 +55,48 @@ func (M *Mat4x4) Col(i int) (r Vec4) {
 
 // Transpose will transpose the given matrix and assign it to the current one
 func (M *Mat4x4) Transpose(a Mat4x4) {
-	for j := 0; j < 4; j++ {
-		for i := 0; i < 4; i++ {
-			(*M)[i][j] = a[j][i]
-		}
-	}
+	(*M)[0][0] = a[0][0]
+	(*M)[1][0] = a[0][1]
+	(*M)[2][0] = a[0][2]
+	(*M)[3][0] = a[0][3]
+	(*M)[0][1] = a[1][0]
+	(*M)[1][1] = a[1][1]
+	(*M)[2][1] = a[1][2]
+	(*M)[3][1] = a[1][3]
+	(*M)[0][2] = a[2][0]
+	(*M)[1][2] = a[2][1]
+	(*M)[2][2] = a[2][2]
+	(*M)[3][2] = a[2][3]
+	(*M)[0][3] = a[3][0]
+	(*M)[1][3] = a[3][1]
+	(*M)[2][3] = a[3][2]
+	(*M)[3][3] = a[3][3]
 }
 
 func (M *Mat4x4) Add(a, b Mat4x4) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = a[i].Add(b[i])
+		(*M)[i][0] = a[i][0] + b[i][0]
+		(*M)[i][1] = a[i][1] + b[i][1]
+		(*M)[i][2] = a[i][2] + b[i][2]
+		(*M)[i][3] = a[i][3] + b[i][3]
 	}
 }
 
 func (M *Mat4x4) Sub(a, b Mat4x4) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = a[i].Sub(b[i])
+		(*M)[i][0] = a[i][0] - b[i][0]
+		(*M)[i][1] = a[i][1] - b[i][1]
+		(*M)[i][2] = a[i][2] - b[i][2]
+		(*M)[i][3] = a[i][3] - b[i][3]
 	}
 }
 
-func (M *Mat4x4) Scale(a Mat4x4, k float64) {
+func (M *Mat4x4) Scale(a Mat4x4, s float64) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = a[i].Scale(k)
+		(*M)[i][0] = a[i][0] * s
+		(*M)[i][1] = a[i][1] * s
+		(*M)[i][2] = a[i][2] * s
+		(*M)[i][3] = a[i][3] * s
 	}
 }
 
@@ -77,9 +104,10 @@ func (M *Mat4x4) ScaleAniso(a Mat4x4, x, y, z float64) {
 	(*M)[0] = a[0].Scale(x)
 	(*M)[1] = a[1].Scale(y)
 	(*M)[2] = a[2].Scale(z)
-	for i := 0; i < 4; i++ {
-		(*M)[3][i] = a[3][i]
-	}
+	(*M)[3][0] = a[3][0]
+	(*M)[3][1] = a[3][1]
+	(*M)[3][2] = a[3][2]
+	(*M)[3][3] = a[3][3]
 }
 
 func (M *Mat4x4) Mul(a, b Mat4x4) {
