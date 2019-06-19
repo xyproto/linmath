@@ -1,4 +1,4 @@
-package linmath
+package lm
 
 import "math"
 
