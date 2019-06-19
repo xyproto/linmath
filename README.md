@@ -25,5 +25,5 @@ These may be useful for computer graphics programming.
 ## General info
 
 * License: MIT
-* Version: 1.0.0
+* Version: 2.0.0
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
