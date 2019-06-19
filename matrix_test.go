@@ -82,6 +82,19 @@ func ExampleRow() {
 	// [1 5 9 13]
 }
 
+func BenchmarkRow(b *testing.B) {
+	M := Mat4x4{
+		Vec4{1, 2, 3, 4},
+		Vec4{5, 6, 7, 8},
+		Vec4{9, 10, 11, 12},
+		Vec4{13, 14, 15, 16},
+	}
+	for n := 0; n < b.N; n++ {
+		M.Row(0)
+	}
+
+}
+
 func ExampleCol() {
 	M := Mat4x4{
 		Vec4{1, 2, 3, 4},
@@ -98,4 +111,16 @@ func ExampleCol() {
 	// [3 7 11 15]
 	// [2 6 10 14]
 	// [1 5 9 13]
+}
+
+func BenchmarkCol(b *testing.B) {
+	M := Mat4x4{
+		Vec4{1, 2, 3, 4},
+		Vec4{5, 6, 7, 8},
+		Vec4{9, 10, 11, 12},
+		Vec4{13, 14, 15, 16},
+	}
+	for n := 0; n < b.N; n++ {
+		M.Col(0)
+	}
 }
