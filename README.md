@@ -18,7 +18,9 @@ These may be useful for computer graphics programming.
 
 ## TODO
 
-- [ ] Add tests
+- [ ] Full test coverage
+- [ ] Full benchmark coverage
+- [ ] Optimize functions
 
 ## General info
 
