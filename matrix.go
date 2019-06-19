@@ -1,14 +1,16 @@
-package linmath
+package lm
 
 import "math"
 
+// Mat4x4 is a [4]Vec4. A [16]float would be faster when using ie. copy.
 type Mat4x4 [4]Vec4
 
+// Identity fills the matrix with the identity matrix (diagonal of 1's)
 func (M *Mat4x4) Identity() {
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
 			if i == j {
-				(*M)[i][j] = 1.
+				(*M)[i][j] = 1
 			} else {
 				(*M)[i][j] = 0
 			}
@@ -16,12 +18,24 @@ func (M *Mat4x4) Identity() {
 	}
 }
 
+// MatIdentity creates a new identity matrix
+func MatIdentity() (r Mat4x4) {
+	r.Identity()
+	return r
+}
+
+// Dup overwrites M with the contents of N
 func (M *Mat4x4) Dup(N Mat4x4) {
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			(*M)[i][j] = N[i][j]
-		}
-	}
+	//for i := 0; i < 4; i++ {
+	//	copy((*M)[i][:], N[i][:])
+	//for j := 0; j < 4; j++ {
+	//	(*M)[i][j] = N[i][j]
+	//}
+	//}
+	copy((*M)[0][:], N[0][:])
+	copy((*M)[1][:], N[1][:])
+	copy((*M)[2][:], N[2][:])
+	copy((*M)[3][:], N[3][:])
 }
 
 func (M *Mat4x4) Row(i int) (r Vec4) {
@@ -32,6 +46,7 @@ func (M *Mat4x4) Row(i int) (r Vec4) {
 }
 
 func (M *Mat4x4) Col(i int) (r Vec4) {
+	// copy(r[:], (*M)[i][:])
 	for k := 0; k < 4; k++ {
 		r[k] = (*M)[i][k]
 	}
