@@ -1,4 +1,6 @@
-# linmath
+# Linear Math
+
+[![Build Status](https://travis-ci.org/xyproto/lm.svg?branch=master)](https://travis-ci.org/xyproto/lm) [![GoDoc](https://godoc.org/github.com/xyproto/lm?status.svg)](https://godoc.org/github.com/xyproto/lm) [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/xyproto/lm/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/xyproto/lm)](https://goreportcard.com/report/github.com/xyproto/lm) [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/xyproto)
 
 Port of [linmath.h](https://github.com/datenwolf/linmath.h) by Wolfgang 'datenwolf' Draxinger &lt;code@datenwolf.net&gt; (licensed under WTFPL), from C to Go.
 
