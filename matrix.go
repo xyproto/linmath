@@ -25,19 +25,14 @@ func MatIdentity() (r Mat4x4) {
 }
 
 // Dup overwrites M with the contents of N
-func (M *Mat4x4) Dup(N Mat4x4) {
-	//for i := 0; i < 4; i++ {
-	//	copy((*M)[i][:], N[i][:])
-	//for j := 0; j < 4; j++ {
-	//	(*M)[i][j] = N[i][j]
-	//}
-	//}
-	copy((*M)[0][:], N[0][:])
-	copy((*M)[1][:], N[1][:])
-	copy((*M)[2][:], N[2][:])
-	copy((*M)[3][:], N[3][:])
+func (M *Mat4x4) Dup(a Mat4x4) {
+	copy((*M)[0][:], a[0][:])
+	copy((*M)[1][:], a[1][:])
+	copy((*M)[2][:], a[2][:])
+	copy((*M)[3][:], a[3][:])
 }
 
+// Row returns the requested row, counting from 0
 func (M *Mat4x4) Row(i int) (r Vec4) {
 	for k := 0; k < 4; k++ {
 		r[k] = (*M)[k][i]
@@ -45,18 +40,17 @@ func (M *Mat4x4) Row(i int) (r Vec4) {
 	return r
 }
 
+// Row returns the requested column, counting from 0
 func (M *Mat4x4) Col(i int) (r Vec4) {
-	// copy(r[:], (*M)[i][:])
-	for k := 0; k < 4; k++ {
-		r[k] = (*M)[i][k]
-	}
+	copy(r[:], (*M)[i][:])
 	return r
 }
 
-func (M *Mat4x4) Transpose(N Mat4x4) {
+// Transpose will transpose the given matrix and assign it to the current one
+func (M *Mat4x4) Transpose(a Mat4x4) {
 	for j := 0; j < 4; j++ {
 		for i := 0; i < 4; i++ {
-			(*M)[i][j] = N[j][i]
+			(*M)[i][j] = a[j][i]
 		}
 	}
 }
@@ -120,10 +114,8 @@ func (M *Mat4x4) Translate(x, y, z float64) {
 
 func (M *Mat4x4) TranslateInPlace(x, y, z float64) {
 	t := Vec4{x, y, z, 0}
-	var r Vec4
 	for i := 0; i < 4; i++ {
-		r = M.Row(i)
-		(*M)[3][i] += r.MulInner(t)
+		(*M)[3][i] += M.Row(i).MulInner(t)
 	}
 }
 
@@ -139,7 +131,7 @@ func (M *Mat4x4) FromVec3MulOuter(a, b Vec3) {
 	}
 }
 
-func (M *Mat4x4) Rotate(R Mat4x4, x, y, z, angle float64) {
+func (M *Mat4x4) Rotate(a Mat4x4, x, y, z, angle float64) {
 	s := math.Sin(angle)
 	c := math.Cos(angle)
 	u := Vec3{x, y, z}
@@ -160,101 +152,97 @@ func (M *Mat4x4) Rotate(R Mat4x4, x, y, z, angle float64) {
 		C := &Mat4x4{}
 		C.Identity()
 		C.Sub(*C, *T)
-
 		C.Scale(*C, c)
 
 		T.Add(*T, *C)
 		T.Add(*T, *S)
 
 		T[3][3] = 1.0
-		M.Mul(R, *T)
+		M.Mul(a, *T)
 	} else {
-		M.Dup(R)
+		M.Dup(a)
 	}
 }
 
-func (M *Mat4x4) RotateX(R Mat4x4, angle float64) {
+func (M *Mat4x4) RotateX(a Mat4x4, angle float64) {
 	s := math.Sin(angle)
 	c := math.Cos(angle)
-	RM := Mat4x4{
+	b := Mat4x4{
 		Vec4{1.0, 0, 0, 0},
 		Vec4{0, c, s, 0},
 		Vec4{0, -s, c, 0},
 		Vec4{0, 0, 0, 1.0},
 	}
-	M.Mul(R, RM)
+	M.Mul(a, b)
 }
 
-func (M *Mat4x4) RotateY(R Mat4x4, angle float64) {
+func (M *Mat4x4) RotateY(a Mat4x4, angle float64) {
 	s := math.Sin(angle)
 	c := math.Cos(angle)
-	RM := Mat4x4{
+	b := Mat4x4{
 		Vec4{c, 0, s, 0},
 		Vec4{0, 1.0, 0, 0},
 		Vec4{-s, 0, c, 0},
 		Vec4{0, 0, 0, 1.0},
 	}
-	M.Mul(R, RM)
+	M.Mul(a, b)
 }
 
-func (M *Mat4x4) RotateZ(R Mat4x4, angle float64) {
+func (M *Mat4x4) RotateZ(a Mat4x4, angle float64) {
 	s := math.Sin(angle)
 	c := math.Cos(angle)
-	RM := Mat4x4{
+	b := Mat4x4{
 		Vec4{c, s, 0, 0},
 		Vec4{-s, c, 0, 0},
 		Vec4{0, 0, 1.0, 0},
 		Vec4{0, 0, 0, 1.0},
 	}
-	M.Mul(R, RM)
+	M.Mul(a, b)
 }
 
-func (M *Mat4x4) Invert(M2 Mat4x4) {
-	var (
-		s [6]float64
-		c [6]float64
-	)
+func (M *Mat4x4) Invert(a Mat4x4) {
+	var s, c [6]float64
 
-	s[0] = M2[0][0]*M2[1][1] - M2[1][0]*M2[0][1]
-	s[1] = M2[0][0]*M2[1][2] - M2[1][0]*M2[0][2]
-	s[2] = M2[0][0]*M2[1][3] - M2[1][0]*M2[0][3]
-	s[3] = M2[0][1]*M2[1][2] - M2[1][1]*M2[0][2]
-	s[4] = M2[0][1]*M2[1][3] - M2[1][1]*M2[0][3]
-	s[5] = M2[0][2]*M2[1][3] - M2[1][2]*M2[0][3]
+	s[0] = a[0][0]*a[1][1] - a[1][0]*a[0][1]
+	s[1] = a[0][0]*a[1][2] - a[1][0]*a[0][2]
+	s[2] = a[0][0]*a[1][3] - a[1][0]*a[0][3]
+	s[3] = a[0][1]*a[1][2] - a[1][1]*a[0][2]
+	s[4] = a[0][1]*a[1][3] - a[1][1]*a[0][3]
+	s[5] = a[0][2]*a[1][3] - a[1][2]*a[0][3]
 
-	c[0] = M2[2][0]*M2[3][1] - M2[3][0]*M2[2][1]
-	c[1] = M2[2][0]*M2[3][2] - M2[3][0]*M2[2][2]
-	c[2] = M2[2][0]*M2[3][3] - M2[3][0]*M2[2][3]
-	c[3] = M2[2][1]*M2[3][2] - M2[3][1]*M2[2][2]
-	c[4] = M2[2][1]*M2[3][3] - M2[3][1]*M2[2][3]
-	c[5] = M2[2][2]*M2[3][3] - M2[3][2]*M2[2][3]
+	c[0] = a[2][0]*a[3][1] - a[3][0]*a[2][1]
+	c[1] = a[2][0]*a[3][2] - a[3][0]*a[2][2]
+	c[2] = a[2][0]*a[3][3] - a[3][0]*a[2][3]
+	c[3] = a[2][1]*a[3][2] - a[3][1]*a[2][2]
+	c[4] = a[2][1]*a[3][3] - a[3][1]*a[2][3]
+	c[5] = a[2][2]*a[3][3] - a[3][2]*a[2][3]
 
 	// Assumes it is invertible
 	idet := 1.0 / (s[0]*c[5] - s[1]*c[4] + s[2]*c[3] + s[3]*c[2] - s[4]*c[1] + s[5]*c[0])
 
-	(*M)[0][0] = (M2[1][1]*c[5] - M2[1][2]*c[4] + M2[1][3]*c[3]) * idet
-	(*M)[0][1] = (-M2[0][1]*c[5] + M2[0][2]*c[4] - M2[0][3]*c[3]) * idet
-	(*M)[0][2] = (M2[3][1]*s[5] - M2[3][2]*s[4] + M2[3][3]*s[3]) * idet
-	(*M)[0][3] = (-M2[2][1]*s[5] + M2[2][2]*s[4] - M2[2][3]*s[3]) * idet
+	(*M)[0][0] = (a[1][1]*c[5] - a[1][2]*c[4] + a[1][3]*c[3]) * idet
+	(*M)[0][1] = (-a[0][1]*c[5] + a[0][2]*c[4] - a[0][3]*c[3]) * idet
+	(*M)[0][2] = (a[3][1]*s[5] - a[3][2]*s[4] + a[3][3]*s[3]) * idet
+	(*M)[0][3] = (-a[2][1]*s[5] + a[2][2]*s[4] - a[2][3]*s[3]) * idet
 
-	(*M)[1][0] = (-M2[1][0]*c[5] + M2[1][2]*c[2] - M2[1][3]*c[1]) * idet
-	(*M)[1][1] = (M2[0][0]*c[5] - M2[0][2]*c[2] + M2[0][3]*c[1]) * idet
-	(*M)[1][2] = (-M2[3][0]*s[5] + M2[3][2]*s[2] - M2[3][3]*s[1]) * idet
-	(*M)[1][3] = (M2[2][0]*s[5] - M2[2][2]*s[2] + M2[2][3]*s[1]) * idet
+	(*M)[1][0] = (-a[1][0]*c[5] + a[1][2]*c[2] - a[1][3]*c[1]) * idet
+	(*M)[1][1] = (a[0][0]*c[5] - a[0][2]*c[2] + a[0][3]*c[1]) * idet
+	(*M)[1][2] = (-a[3][0]*s[5] + a[3][2]*s[2] - a[3][3]*s[1]) * idet
+	(*M)[1][3] = (a[2][0]*s[5] - a[2][2]*s[2] + a[2][3]*s[1]) * idet
 
-	(*M)[2][0] = (M2[1][0]*c[4] - M2[1][1]*c[2] + M2[1][3]*c[0]) * idet
-	(*M)[2][1] = (-M2[0][0]*c[4] + M2[0][1]*c[2] - M2[0][3]*c[0]) * idet
-	(*M)[2][2] = (M2[3][0]*s[4] - M2[3][1]*s[2] + M2[3][3]*s[0]) * idet
-	(*M)[2][3] = (-M2[2][0]*s[4] + M2[2][1]*s[2] - M2[2][3]*s[0]) * idet
+	(*M)[2][0] = (a[1][0]*c[4] - a[1][1]*c[2] + a[1][3]*c[0]) * idet
+	(*M)[2][1] = (-a[0][0]*c[4] + a[0][1]*c[2] - a[0][3]*c[0]) * idet
+	(*M)[2][2] = (a[3][0]*s[4] - a[3][1]*s[2] + a[3][3]*s[0]) * idet
+	(*M)[2][3] = (-a[2][0]*s[4] + a[2][1]*s[2] - a[2][3]*s[0]) * idet
 
-	(*M)[3][0] = (-M2[1][0]*c[3] + M2[1][1]*c[1] - M2[1][2]*c[0]) * idet
-	(*M)[3][1] = (M2[0][0]*c[3] - M2[0][1]*c[1] + M2[0][2]*c[0]) * idet
-	(*M)[3][2] = (-M2[3][0]*s[3] + M2[3][1]*s[1] - M2[3][2]*s[0]) * idet
-	(*M)[3][3] = (M2[2][0]*s[3] - M2[2][1]*s[1] + M2[2][2]*s[0]) * idet
+	(*M)[3][0] = (-a[1][0]*c[3] + a[1][1]*c[1] - a[1][2]*c[0]) * idet
+	(*M)[3][1] = (a[0][0]*c[3] - a[0][1]*c[1] + a[0][2]*c[0]) * idet
+	(*M)[3][2] = (-a[3][0]*s[3] + a[3][1]*s[1] - a[3][2]*s[0]) * idet
+	(*M)[3][3] = (a[2][0]*s[3] - a[2][1]*s[1] + a[2][2]*s[0]) * idet
 }
 
-func (M *Mat4x4) Orthonormalize(RM Mat4x4) {
-	M.Dup(RM)
+func (M *Mat4x4) Orthonormalize(a Mat4x4) {
+	M.Dup(a)
 
 	vn := (*M)[2].Vec3().Norm()
 
