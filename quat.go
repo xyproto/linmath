@@ -34,15 +34,11 @@ func (q Quat) Vec3() (r Vec3) {
 }
 
 func (q Quat) Mul(b Quat) (r Quat) {
-	v := Vec3MulCross(q.Vec3(), b.Vec3())
-	w := Vec3Scale(q.Vec3(), b[3])
-	v = Vec3Add(v, w)
-	w = Vec3Scale(b.Vec3(), q[3])
-	v = Vec3Add(v, w)
+	v := q.Vec3().MulCross(b.Vec3()).Add(q.Vec3().Scale(b[3])).Add(b.Vec3().Scale(q[3]))
 	r[0] = v[0]
 	r[1] = v[1]
 	r[2] = v[2]
-	r[3] = q[3]*b[3] - Vec3MulInner(q.Vec3(), b.Vec3())
+	r[3] = q[3]*b[3] - q.Vec3().MulInner(b.Vec3())
 	return r
 }
 
@@ -69,7 +65,7 @@ func (q Quat) Conj() (r Quat) {
 }
 
 func QuatRotate(angle float64, axis Vec3) (r Quat) {
-	v := Vec3Scale(axis, math.Sin(angle/2))
+	v := axis.Scale(math.Sin(angle / 2))
 	for i := 0; i < 3; i++ {
 		r[i] = v[i]
 	}
@@ -86,27 +82,23 @@ func (q Quat) Vec4() (v Vec4) {
 }
 
 func (q Quat) Norm() Quat {
-	return Vec4Norm(q.Vec4()).Quat()
+	return q.Vec4().Norm().Quat()
 }
 
 func (q Quat) MulVec3(v Vec3) (r Vec3) {
 	/*
-	    * Method by Fabian 'ryg' Giessen (of Farbrausch)
+	   Method by Fabian 'ryg' Giessen (of Farbrausch)
 	   t = 2 * cross(q.xyz, v)
 	   v' = v + q.w * t + cross(q.xyz, t)
 	*/
 	qXyz := Vec3{q[0], q[1], q[2]}
+
 	u := Vec3{q[0], q[1], q[2]}
+	t := qXyz.MulCross(v).Scale(2)
+	u = qXyz.MulCross(t)
+	t = t.Scale(q[3])
 
-	t := Vec3MulCross(qXyz, v)
-	t = Vec3Scale(t, 2)
-
-	u = Vec3MulCross(qXyz, t)
-	t = Vec3Scale(t, q[3])
-
-	r = Vec3Add(v, t)
-	r = Vec3Add(r, u)
-	return r
+	return v.Add(t).Add(u)
 }
 
 func (q Quat) Mat4x4() (M Mat4x4) {

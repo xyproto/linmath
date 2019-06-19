@@ -48,26 +48,26 @@ func (M *Mat4x4) Transpose(N Mat4x4) {
 
 func (M *Mat4x4) Add(a, b Mat4x4) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = Vec4Add(a[i], b[i])
+		(*M)[i] = a[i].Add(b[i])
 	}
 }
 
 func (M *Mat4x4) Sub(a, b Mat4x4) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = Vec4Sub(a[i], b[i])
+		(*M)[i] = a[i].Sub(b[i])
 	}
 }
 
 func (M *Mat4x4) Scale(a Mat4x4, k float64) {
 	for i := 0; i < 4; i++ {
-		(*M)[i] = Vec4Scale(a[i], k)
+		(*M)[i] = a[i].Scale(k)
 	}
 }
 
 func (M *Mat4x4) ScaleAniso(a Mat4x4, x, y, z float64) {
-	(*M)[0] = Vec4Scale(a[0], x)
-	(*M)[1] = Vec4Scale(a[1], y)
-	(*M)[2] = Vec4Scale(a[2], z)
+	(*M)[0] = a[0].Scale(x)
+	(*M)[1] = a[1].Scale(y)
+	(*M)[2] = a[2].Scale(z)
 	for i := 0; i < 4; i++ {
 		(*M)[3][i] = a[3][i]
 	}
@@ -108,7 +108,7 @@ func (M *Mat4x4) TranslateInPlace(x, y, z float64) {
 	var r Vec4
 	for i := 0; i < 4; i++ {
 		r = M.Row(i)
-		(*M)[3][i] += Vec4MulInner(r, t)
+		(*M)[3][i] += r.MulInner(t)
 	}
 }
 
@@ -130,8 +130,8 @@ func (M *Mat4x4) Rotate(R Mat4x4, x, y, z, angle float64) {
 	u := Vec3{x, y, z}
 	T := &Mat4x4{}
 
-	if Vec3Len(u) > 1e-4 {
-		u = Vec3Norm(u)
+	if u.Len() > 1e-4 {
+		u = u.Norm()
 		T.FromVec3MulOuter(u, u)
 
 		S := &Mat4x4{
@@ -241,38 +241,37 @@ func (M *Mat4x4) Invert(M2 Mat4x4) {
 func (M *Mat4x4) Orthonormalize(RM Mat4x4) {
 	M.Dup(RM)
 
-	vn := Vec3Norm((*M)[2].Vec3())
+	vn := (*M)[2].Vec3().Norm()
 
 	(*M)[2][0] = vn[0]
 	(*M)[2][1] = vn[1]
 	(*M)[2][2] = vn[2]
 
-	s := Vec3MulInner((*M)[1].Vec3(), (*M)[2].Vec3())
-	h := Vec3Scale((*M)[2].Vec3(), s)
-	vs := Vec3Sub((*M)[1].Vec3(), h)
+	s := (*M)[1].Vec3().MulInner((*M)[2].Vec3())
+	h := (*M)[2].Vec3().Scale(s)
+	vs := (*M)[1].Vec3().Sub(h)
 
 	(*M)[1][0] = vs[0]
 	(*M)[1][1] = vs[1]
 	(*M)[1][2] = vs[2]
 
-	vn = Vec3Norm((*M)[1].Vec3())
+	vn = (*M)[1].Vec3().Norm()
 
 	(*M)[1][0] = vn[0]
 	(*M)[1][1] = vn[1]
 	(*M)[1][2] = vn[2]
 
-	s = Vec3MulInner((*M)[0].Vec3(), (*M)[2].Vec3())
-	h = Vec3Scale((*M)[2].Vec3(), s)
-	vs = Vec3Sub((*M)[0].Vec3(), h)
+	s = (*M)[0].Vec3().MulInner((*M)[2].Vec3())
+	h = (*M)[2].Vec3().Scale(s)
+	vs = (*M)[0].Vec3().Sub(h)
 
 	(*M)[0][0] = vs[0]
 	(*M)[0][1] = vs[1]
 	(*M)[0][2] = vs[2]
 
-	s = Vec3MulInner((*M)[0].Vec3(), (*M)[1].Vec3())
-	h = Vec3Scale((*M)[1].Vec3(), s)
-	vs = Vec3Sub((*M)[0].Vec3(), h)
-	vn = Vec3Norm(vs)
+	s = (*M)[0].Vec3().MulInner((*M)[1].Vec3())
+	h = (*M)[1].Vec3().Scale(s)
+	vn = (*M)[0].Vec3().Sub(h).Norm()
 
 	(*M)[0][0] = vn[0]
 	(*M)[0][1] = vn[1]
@@ -357,9 +356,9 @@ func (M *Mat4x4) LookAt(eye, center, up Vec3) {
 	/* TODO: The negation of of can be spared by swapping the order of
 	 *       operands in the following cross products in the right way. */
 
-	f := Vec3Norm(Vec3Sub(center, eye))
-	s := Vec3Norm(Vec3MulCross(f, up))
-	t := Vec3MulCross(s, f)
+	f := center.Sub(eye).Norm()
+	s := f.MulCross(up).Norm()
+	t := s.MulCross(f)
 
 	(*M)[0][0] = s[0]
 	(*M)[0][1] = t[0]
