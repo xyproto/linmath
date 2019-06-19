@@ -1,3 +1,3 @@
-module github.com/xyproto/linmath
+module github.com/xyproto/lm
 
 go 1.12
